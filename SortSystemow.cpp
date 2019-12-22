@@ -25,7 +25,7 @@ void increscent(int *ar, int p, int k){
 	if(j>p) increscent(ar, p, j);
 	if(i<k) increscent(ar, i, k);
 	
-	cout<<"increscent done\n";
+	//cout<<"increscent done\n";
 }
 
 void decrescent(int *ar, int p, int k){
