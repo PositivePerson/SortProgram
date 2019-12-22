@@ -1,0 +1,1 @@
+Commands from user must be in Polish but program is generally written in English, i know
