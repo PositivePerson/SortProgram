@@ -100,7 +100,8 @@ void wrongInput(){
 	cout<<"blad w poleceniu\n";
 }
 
-void loopOut(){//debug
+//------------debug----------
+void loopOut(){
 	cout<<"poza petla\n";
 }
 
@@ -130,6 +131,9 @@ int main(){
 	cout<<" -rosnaco\n";
 	cout<<" -malejaco\n";
 	cout<<"-wypisz\n";
+	cout<<" -orginalna\n";
+	cout<<" -zmieniona\n";
+	cout<<"-system\n";
 	cout<<"-wyczysc\n";
 	cout<<"-wyjdz\n";
 	cout<<'\n';
