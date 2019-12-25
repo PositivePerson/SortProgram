@@ -81,7 +81,7 @@ void changeSystem(int *ar,int *choosedAr,int inputs,int system){
 		while(iValue>0){
 			sValue=(char)(iValue%system+48)+sValue;
 			iValue/=system;
-			cout<<iValue<<" "<<sValue<<"   ";
+			//cout<<iValue<<" "<<sValue<<"   ";
 		}
 		//cout<<sValue<<'\n';
 		
@@ -105,6 +105,22 @@ void loopOut(){
 	cout<<"poza petla\n";
 }
 
+int to10(int value, int system){
+	int result=0;
+	int multiplier=1;
+	
+	while(value!=0){
+		result+=(value%10)*multiplier;
+		value/=10;
+		multiplier*=system;
+		
+		cout<<result<<" ";
+	}
+	cout<<'\n';
+	
+	return result;
+}
+
 	//-------------10system---------
 	int inputs=1;
 	int *ar=new int[inputs];
@@ -121,8 +137,9 @@ int main(){
 	string whichAr="orginalna";
 	int system=0;
 	long long value=0;
-	
-	
+	int multiplier=1;
+	bool isClear=true;
+	bool isChanged=false;
 	
 	
 	//-------------menu--------------
@@ -138,8 +155,37 @@ int main(){
 	cout<<"-wyjdz\n";
 	cout<<'\n';
 	
+	cout<<"w jakim systemie liczbowym beda wprowadzane wartosci?";
+	cout<<"\n-2\n-3\n-4\n-5\n-6\n-7\n-8\n-9\n-10\n";
+	
 	while(cin>>command){
-
+		
+		if(command=="wyjdz" || command=="exit"){
+			_Exit(0);
+		}
+		
+		else if(isClear==true){
+			
+			multiplier=1;
+			
+			for(int i=command.length()-1;i>=0;i--){
+				
+				//--------------Is-Input-A-Number-------------
+				if(((int)command[i])<48 || ((int)command[i])>57){
+					wrongInput();
+					system=-1;
+					break;
+				}
+				
+				else {
+				system+=((int)command[i]-48)*multiplier;
+			multiplier*=10;
+				}
+			}
+			if(system>=2 && system<=10)	isClear=0;
+		}
+		
+		else{
 		
 		if(command=="uporzadkuj" || command=="sortuj"){
 			cout<<"rosnaco/malejaco\n";
@@ -157,7 +203,7 @@ int main(){
 			}
 			
 			else {
-				wrongInput();
+				cout<<"powtorz polecenie\n";
 			}
 			}while(direction!="rosnaco" && direction!="malejaco");
 			
@@ -181,55 +227,92 @@ int main(){
 			
 			}while(system<2 || system>9);
 			
+			isChanged=true;
 			loopOut();
 		}
 		
 		else if(command=="wypisz"){
 			
-			cout<<"tablica ktora ma zostac wypisana\n";
-			cout<<"orginalna/zmieniona\n";
 			
-			do{
-			cin>>whichAr;
 			
-			if(whichAr=="orginalna"){
-				wypisz(ar, inputs);
+			if(inputs<2){
+				cout<<"Tablice sa puste\n";
 			}
 			
-			else if(whichAr=="zmieniona"){
-				wypisz(choosedAr, inputs);
+			else if(isChanged==false){
+				if(system==10) wypisz(ar, inputs);
+				else wypisz(choosedAr, inputs);
 			}
 			
 			else{
-				wrongInput();
+				cout<<"tablica ktora ma zostac wypisana\n";
+				cout<<"orginalna/zmieniona\n";
+				
+				do{
+				cin>>whichAr;
+				
+				if(whichAr=="orginalna"){
+					wypisz(ar, inputs);
+				}
+				
+				else if(whichAr=="zmieniona"){
+					wypisz(choosedAr, inputs);
+				}
+				
+				else{
+					wrongInput();
+				}
+				}while(whichAr!="orginalna" && whichAr!="zmieniona");
 			}
-			}while(whichAr!="orginalna" && whichAr!="zmieniona");
-			
 		}
 		
 		else if(command=="wyczysc"){
 			inputs=1;
-		}
-		
-		else if(command=="wyjdz" || command=="exit"){
-			_Exit(0);
+			cout<<"w jakim systemie liczbowym beda wprowadzane wartosci?\n";
+			isClear=true;
+			isChanged=false;
 		}
 			
 		else{
-			int multiplier=1;
+			
+			multiplier=1;
 			for(int i=command.length()-1;i>=0;i--){
-			value+=((int)command[i]-48)*multiplier;
+				
+				//--------------Is-Input-A-Number-------------
+				if(((int)command[i])<48 || ((int)command[i])>57){
+					wrongInput();
+					value=-1;
+					break;
+				}
+				
+				else {
+				value+=((int)command[i]-48)*multiplier;
 			multiplier*=10;
+				}
 			}
-			ar[inputs-1]=value;
-			choosedAr[inputs-1]=value;
-			cout<<"v: "<<value<<" ar[inputs-1]:"<<ar[inputs-1]<<'\n';
-			inputs++;
-			cout<<"inputs: "<<inputs<<'\n';
-			//cout<<"sizeof(ar): "<<sizeof(ar)<<'\n';
+			
+			if(value!=-1){
+				if(system==10){
+					ar[inputs-1]=value;
+					choosedAr[inputs-1]=value;
+					//cout<<"v: "<<value<<" ar[inputs-1]:"<<ar[inputs-1]<<'\n';
+					inputs++;
+					//cout<<"inputs: "<<inputs<<'\n';
+					cout<<"dodano\n";
+				}
+				else {
+					choosedAr[inputs-1]=value;
+					ar[inputs-1]=to10(value, system);
+					//cout<<"v: "<<value<<" ar[inputs-1]:"<<ar[inputs-1]<<'\n';
+					inputs++;
+					//cout<<"inputs: "<<inputs<<'\n';
+					cout<<"dodano"<<to10(value, system)<<"\n";
+				}
+				
+			}
 			value=0;
 		}
-		
+	}
 	}
 	
 	delete[] ar;
