@@ -1,8 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <windows.h>
+#include <conio.h>
 
 using namespace std;
+
+void colour(int k)
+{
+     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), k);
+}
 
 void increscent(int *ar, int p, int k){
 	sort(ar, ar+k);
@@ -96,6 +103,25 @@ void changeSystem(int *ar,int *choosedAr,int inputs,int system){
 	//cout<<'\n';
 }
 
+void checkIfDivisible(int inputs, int *base, int *arTaken, string divisor){
+	int intDivisor=0;
+	int multiplier=1;
+	
+	for(int i=divisor.length()-1;i>=0;i--){
+		intDivisor+=((int)divisor[i]-48)*multiplier;
+		multiplier*=10;
+	}
+	
+	for(int i=0;i<inputs-1;i++){
+		if(base[i]%intDivisor==0){
+			cout<<arTaken[i]<<" ";
+		}
+	}
+	//cout<<"i koniec checkIfDivisible\n";
+}
+
+
+
 void wrongInput(){
 	cout<<"blad w poleceniu\n";
 }
@@ -114,32 +140,50 @@ int to10(int value, int system){
 		value/=10;
 		multiplier*=system;
 		
-		cout<<result<<" ";
+		//cout<<result<<" ";
 	}
-	cout<<'\n';
+	//cout<<'\n';
 	
 	return result;
+}
+
+bool isInputNumber(string input){
+	for(int i=0;i<input.length();i++){
+		if((int)input[i]<48 || (int)input[i]>57) return false;
+	}
+	return true;
 }
 
 	//-------------10system---------
 	int inputs=1;
 	int *ar=new int[inputs];
 	
-	
-	//-------------choosedsystem----
-	//int index=1;
+	//-------------originalAr---------
 	int *choosedAr=new int[inputs];
+	
+	//-------------changedSystem----
+	//int index=1;
+	int *changedAr=new int[inputs];
 
 
 int main(){
+	
 	string command;
 	string direction="";
 	string whichAr="orginalna";
 	int system=0;
+	string divisor="";
+	int color=0;
 	long long value=0;
 	int multiplier=1;
 	bool isClear=true;
 	bool isChanged=false;
+	int changes=0;
+	int commandsAmount=0;
+	
+	{
+  SetConsoleTitle("NightIdea");
+	}
 	
 	
 	//-------------menu--------------
@@ -151,8 +195,12 @@ int main(){
 	cout<<" -orginalna\n";
 	cout<<" -zmieniona\n";
 	cout<<"-system\n";
+	cout<<"-podzielne\n";
 	cout<<"-wyczysc\n";
 	cout<<"-wyjdz\n";
+	cout<<"-info\n";
+	cout<<"-baza\n";
+	cout<<"-kolor\n";
 	cout<<'\n';
 	
 	cout<<"w jakim systemie liczbowym beda wprowadzane wartosci?";
@@ -195,11 +243,13 @@ int main(){
 			cin>>direction;
 			
 			if(direction=="rosnaco"){
-				increscent(ar, 0, inputs-1);//
+				increscent(ar, 0, inputs-1);
+				changes++;
 			}
 			
 			else if(direction=="malejaco"){
-				decrescent(ar, 0, inputs-1);//
+				decrescent(ar, 0, inputs-1);
+				changes++;
 			}
 			
 			else {
@@ -207,7 +257,31 @@ int main(){
 			}
 			}while(direction!="rosnaco" && direction!="malejaco");
 			
+			commandsAmount++;
 			loopOut();
+		}
+		
+		else if(command=="podzielne"){
+			cout<<"sprawdz ktore liczby sa podzielne przez\n";
+			
+			do{
+			cin>>divisor;
+			
+			if(isInputNumber(divisor)){
+				if(!isChanged){
+					checkIfDivisible(inputs, ar, choosedAr, divisor);
+				}
+				else if(isChanged){
+					checkIfDivisible(inputs, ar, changedAr, divisor);
+				}
+				commandsAmount++;
+			}
+			
+			else {
+				wrongInput();
+			}
+			
+			}while(!isInputNumber(divisor));
 		}
 		
 		else if(command=="system"){
@@ -218,7 +292,9 @@ int main(){
 			cin>>system;
 			
 			if((system>1 && system<10)){
-				changeSystem(ar,choosedAr,inputs,system);
+				changeSystem(ar,changedAr,inputs,system);
+				changes++;
+				commandsAmount++;
 			}
 			
 			else {
@@ -246,24 +322,34 @@ int main(){
 			
 			else{
 				cout<<"tablica ktora ma zostac wypisana\n";
-				cout<<"orginalna/zmieniona\n";
+				cout<<"baza/orginalna/zmieniona\n";
 				
 				do{
 				cin>>whichAr;
 				
-				if(whichAr=="orginalna"){
+				if(whichAr=="baza" || whichAr=="baze"){
 					wypisz(ar, inputs);
 				}
 				
-				else if(whichAr=="zmieniona"){
+				else if(whichAr=="orginalna"){
 					wypisz(choosedAr, inputs);
+				}
+				
+				else if(whichAr=="zmieniona"){
+					wypisz(changedAr, inputs);
 				}
 				
 				else{
 					wrongInput();
 				}
-				}while(whichAr!="orginalna" && whichAr!="zmieniona");
+				}while(whichAr!="orginalna" && whichAr!="zmieniona" && whichAr!="baza" && whichAr!="zmieniona");
 			}
+			commandsAmount++;
+		}
+		
+		else if(command=="baza"){
+			wypisz(ar, inputs);
+			commandsAmount++;
 		}
 		
 		else if(command=="wyczysc"){
@@ -271,6 +357,44 @@ int main(){
 			cout<<"w jakim systemie liczbowym beda wprowadzane wartosci?\n";
 			isClear=true;
 			isChanged=false;
+			changes=0;
+			commandsAmount++;
+		}
+		
+		else if(command=="info"){
+			cout<<"Ilosc wprowadzonych wartosci: "<<inputs-1<<'\n';
+			cout<<"Ilosc dokonanych zmian: "<<changes<<'\n';
+			cout<<"Ilosc wprowadzonych polecen: "<<commandsAmount<<'\n';
+		}
+		
+		else if(command=="colour" || command=="color" || command=="kolor"){
+			
+			cout<<"Zmien kolor na:\n";
+			cout<<"1-Blue \n2-Green \n3-Agua \n4-Red \n5-Purple \n6-Yellow \n";
+			cout<<"7-White \n8-Gray \n9-Light Blue \n0-Black\n";
+			cout<<"Wpisz numer:\n";
+		
+				do{
+			//cin>>color;
+			color=_getche()-48;
+			if(color==1 || color==2 || color==3
+				|| color==4 || color==5 || color==6
+				|| color==7 || color==8 || color==9
+				|| color==0){
+					cout<<'\n';
+					colour(color);
+				}
+				
+			
+			else {
+				cout<<'\n';
+				wrongInput();
+			}
+			
+			}while(!(color==1 || color==2 || color==3
+				|| color==4 || color==5 || color==6
+				|| color==7 || color==8 || color==9
+				|| color==0));
 		}
 			
 		else{
@@ -298,7 +422,7 @@ int main(){
 					//cout<<"v: "<<value<<" ar[inputs-1]:"<<ar[inputs-1]<<'\n';
 					inputs++;
 					//cout<<"inputs: "<<inputs<<'\n';
-					cout<<"dodano\n";
+					//cout<<"dodano\n";
 				}
 				else {
 					choosedAr[inputs-1]=value;
@@ -306,7 +430,7 @@ int main(){
 					//cout<<"v: "<<value<<" ar[inputs-1]:"<<ar[inputs-1]<<'\n';
 					inputs++;
 					//cout<<"inputs: "<<inputs<<'\n';
-					cout<<"dodano"<<to10(value, system)<<"\n";
+					//cout<<"dodano"<<to10(value, system)<<"\n";
 				}
 				
 			}
@@ -315,6 +439,9 @@ int main(){
 	}
 	}
 	
+	
+	delete[] choosedAr;
+	delete[] changedAr;
 	delete[] ar;
 	
 	return 0;
